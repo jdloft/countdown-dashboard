@@ -1,0 +1,18 @@
+{
+  "name": "package.json",
+  "version": "1.0.0",
+  "description": "Not really the final countdown",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jdloft/school-dashboard.git"
+  },
+  "author": "Jamison Lofthouse (jamison.lofthouse@gmail.com)",
+  "license": "GPL-3.0",
+  "devDependencies": {},
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.5.5"
+  }
+}
