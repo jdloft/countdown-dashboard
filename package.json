@@ -1,5 +1,5 @@
 {
-  "name": "package.json",
+  "name": "countdown-dashboard",
   "version": "1.0.0",
   "description": "Not really the final countdown",
   "main": "index.js",
