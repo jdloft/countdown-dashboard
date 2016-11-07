@@ -12,9 +12,8 @@ Number.prototype.pad = function(size) {
     }
 }
 
-function Countdown(timeString) {
-    this.timeString = timeString;
-    this.time = Date.parse(timeString);
+function Countdown(time) {
+    this.time = time;
     this.seconds = 1000;
     this.minutes = this.seconds * 60;
     this.hours = this.minutes * 60;
