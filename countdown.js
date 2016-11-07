@@ -27,9 +27,9 @@ Countdown.prototype.toString = function() {
     this.update();
     var past = (this.delta < 0);
     var hoursRem = parseInt(this.delta / this.hours);
-    var minutesRem = parseInt((this.delta - hoursRem * this.hours) / this.minutes);
-    var secondsRem = parseInt((this.delta - minutesRem * this.minutes) / this.seconds);
-    var millisecondsRem = parseInt((this.delta - secondsRem * this.seconds) % this.seconds);
+    var minutesRem = parseInt((this.delta % this.hours) / this.minutes);
+    var secondsRem = parseInt((this.delta % this.minutes) / this.seconds);
+    var millisecondsRem = parseInt(this.delta % this.seconds);
     if (past) {
         return Math.abs(hoursRem).pad() + ":" + Math.abs(minutesRem).pad() + ":" +
             Math.abs(secondsRem).pad() + ":" + Math.abs(millisecondsRem).pad(3);
