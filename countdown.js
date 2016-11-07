@@ -39,6 +39,15 @@ Countdown.prototype.toString = function() {
     }
 }
 
+Countdown.prototype.stats = function() {
+    this.update();
+    var output = "Milliseconds: " + this.remaining() + "\n";
+    output += "Seconds: " + this.remainingSeconds() + "\n";
+    output += "Minutes: " + this.remainingMinutes() + "\n";
+    output += "Hours: " + this.remainingHours() + "\n";
+    return output;
+}
+
 Countdown.prototype.remaining = function() {
     return parseInt(this.delta);
 }

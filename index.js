@@ -32,6 +32,12 @@ var curProgress = grid.set(10, 0, 2, 12, contrib.gauge,
         percent: 0.00
     });
 
+var remaining = grid.set(4, 0, 6, 4, blessed.box,
+    {
+        label: 'Remaining',
+        tags: true
+    });
+
 screen.render();
 
 // Parse config file and setup countdowns
@@ -135,17 +141,43 @@ function updateCountdown() {
 
 updateCountdown();
 
+var remainingHeader;
+
+function updateRemaining() {
+    if (nextStart == -1 && nextEnd == -1) {
+        remaining.setContent("All countdowns have passed");
+    }
+    else if (nextStart == nextEnd) {
+        remainingHeader = "{blue-fg}Counting down to the start of " + countdowns[nextStart]["name"] + "{/blue-fg}\n";
+        remainingHeader += "Start: " + (new Date(countdowns[nextStart]["start"])).toTimeString() + "\n";
+        remainingHeader += "End: " + (new Date(countdowns[nextStart]["end"])).toTimeString() + "\n";
+    }
+    else {
+        remainingHeader = "{red-fg}Counting down to the end of " + countdowns[nextEnd]["name"] + "{/red-fg}\n";
+        remainingHeader += "Start: " + (new Date(countdowns[nextEnd]["start"])).toTimeString() + "\n";
+        remainingHeader += "End: " + (new Date(countdowns[nextEnd]["end"])).toTimeString() + "\n";
+    }
+    remainingHeader += "\n";
+}
+
+updateRemaining();
+
+// Clock and countdown update every 1 ms
 setInterval(function() {
     setClock();
     if (nextStart != -1 && nextEnd != -1) {
         countdownClock.setDisplay(currentCountdown.toString());
+        remaining.setContent(remainingHeader + currentCountdown.stats());
+
         if (currentCountdown.remaining() <= 0) {
             setNextCountdown();
             updateCountdown();
+            updateRemaining();
         }
     }
 }, 1);
 
+// Progress updates every 1/2 second
 setInterval(function() {
     if (nextStart == nextEnd) {
         curProgress.setPercent(0.00);
@@ -158,8 +190,7 @@ setInterval(function() {
 }, 500)
 
 // Temp placeholders
-grid.set(4, 0, 6, 4, contrib.gauge, {label: 'Remaining', stroke: 'blue', fill: 'white'});
-grid.set(4, 4, 6, 8, contrib.gauge, {label: 'Other Countdowns', stroke: 'blue', fill: 'white'});
+grid.set(4, 4, 6, 8, blessed.box, {label: 'Other Countdowns'});
 
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {
     return process.exit(0);
