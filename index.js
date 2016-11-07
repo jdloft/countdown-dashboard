@@ -21,14 +21,15 @@ var countdownClock = grid.set(0, 6, 4, 6, contrib.lcd,
         label: 'Countdown',
         elements: 13,
         display: "---.--.--.---",
-        color: 'yellow'
+        color: 'red'
     });
 
 var curProgress = grid.set(10, 0, 2, 12, contrib.gauge,
     {
         label: 'Current Progress',
         stroke: 'blue',
-        fill: 'white'
+        fill: 'white',
+        percent: 0.00
     });
 
 screen.render();
@@ -115,25 +116,45 @@ function setClock() {
         (date.getSeconds()).pad() + "." + (date.getMilliseconds()).pad(3));
 }
 
-if (nextStart != -1 && nextEnd != -1 && nextStart == nextEnd) {
-    var currentCountdown = new Countdown(countdowns[nextStart]["start"]);
-    countdownClock.setOptions({color: 'blue'});
+var currentCountdown;
+
+function updateCountdown() {
+    if (nextStart == -1 && nextEnd == -1) {
+        countdownClock.setDisplay("---.--.--.---");
+        countdownClock.setOptions({color: 'white'});
+    }
+    else if (nextStart == nextEnd) {
+        currentCountdown = new Countdown(countdowns[nextStart]["start"]);
+        countdownClock.setOptions({color: 'blue'});
+    }
+    else {
+        currentCountdown = new Countdown(countdowns[nextEnd]["end"]);
+        countdownClock.setOptions({color: 'red'});
+    }
 }
-else {
-    var currentCountdown = new Countdown(countdowns[nextEnd]["end"]);
-}
+
+updateCountdown();
 
 setInterval(function() {
     setClock();
-    countdownClock.setDisplay(currentCountdown.toString());
+    if (nextStart != -1 && nextEnd != -1) {
+        countdownClock.setDisplay(currentCountdown.toString());
+        if (currentCountdown.remaining() <= 0) {
+            setNextCountdown();
+            updateCountdown();
+        }
+    }
 }, 1);
 
-var curProgressPerc = 0.01;
 setInterval(function() {
-    curProgress.setPercent(parseFloat(curProgressPerc).toFixed(2));
-    curProgressPerc += 0.01;
-    if (curProgressPerc > 1.00)
-        curProgressPerc = 0.00;
+    if (nextStart == nextEnd) {
+        curProgress.setPercent(0.00);
+    }
+    else {
+        var progress = countdowns[nextEnd]["end"] - countdowns[nextEnd]["start"];
+        progress = (Date.now() - countdowns[nextEnd]["start"]) / progress;
+        curProgress.setPercent(parseFloat(progress).toFixed(2));
+    }
 }, 500)
 
 // Temp placeholders

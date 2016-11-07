@@ -39,6 +39,10 @@ Countdown.prototype.toString = function() {
     }
 }
 
+Countdown.prototype.remaining = function() {
+    return parseInt(this.delta);
+}
+
 Countdown.prototype.remainingSeconds = function() {
     return parseInt(this.delta / this.seconds);
 }
