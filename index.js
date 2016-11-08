@@ -211,7 +211,7 @@ setInterval(function() {
         if (currentCountdown.remaining() <= 0) {
             setCountdown();
             updateCountdown();
-            updateRemaining();
+            updateStats();
         }
     }
 }, 1);
