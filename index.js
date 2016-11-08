@@ -32,9 +32,15 @@ var curProgress = grid.set(10, 0, 2, 12, contrib.gauge,
         percent: 0.00
     });
 
-var remaining = grid.set(4, 0, 6, 4, blessed.box,
+var stats = grid.set(4, 0, 3, 4, blessed.box,
     {
-        label: 'Remaining',
+        label: 'Stats',
+        tags: true
+    });
+
+var nextCountdownStats = grid.set(7, 0, 3, 4, blessed.box,
+    {
+        label: 'Next Countdown',
         tags: true
     });
 
@@ -63,7 +69,7 @@ config.forEach(function(countdown) {
 var nextStart = -1;
 var nextEnd = -1;
 
-function setNextCountdown() {
+function setCountdown() {
     nextStart = -1;
     var smallest;
 
@@ -101,7 +107,7 @@ function setNextCountdown() {
     });
 }
 
-setNextCountdown();
+setCountdown();
 
 // Update widgets
 Number.prototype.pad = function(size) {
@@ -148,63 +154,60 @@ function updateCountdown() {
 
 updateCountdown();
 
-var remainingHeader;
-var remainingNextHeader;
-var remainingNextFooter;
+var statsHeader;
+var nextCountdownHeader;
+var nextCountdownFooter;
 
-function updateRemaining() {
+function updateStats() {
     if (nextStart == -1 && nextEnd == -1) {
-        remaining.setContent("All countdowns have passed");
+        stats.setContent("All countdowns have passed");
+        nextCountdownStats.setContent("All countdowns have passed");
+    }
+    else if (nextStart == -1) {
+        nextCountdownStats.setContent("No next countdown");
     }
     else if (nextStart == nextEnd) {
-        remainingHeader = "{blue-fg}Counting down to the start of " + countdowns[nextStart]["name"] + "{/blue-fg}\n";
-        remainingHeader += "Start: " + (new Date(countdowns[nextStart]["start"])).toTimeString() + "\n";
-        remainingHeader += "End: " + (new Date(countdowns[nextStart]["end"])).toTimeString() + "\n";
+        statsHeader = "{blue-fg}Counting down to the start of " + countdowns[nextStart]["name"] + "{/blue-fg}\n";
+        statsHeader += "Start: " + (new Date(countdowns[nextStart]["start"])).toTimeString() + "\n";
+        statsHeader += "End: " + (new Date(countdowns[nextStart]["end"])).toTimeString() + "\n";
 
-        remainingNextHeader = "\n";
-        remainingNextHeader += "Next countdown:\n";
-        remainingNextHeader += "{red-fg}Counting down to the end of " + countdowns[nextEnd]["name"] + "\n";
-        remainingNextFooter = "{/red-fg}\n\n"
-        remainingNextFooter += "Start: " + (new Date(countdowns[nextEnd]["start"])).toTimeString() + "\n";
-        remainingNextFooter += "End: " + (new Date(countdowns[nextEnd]["end"])).toTimeString() + "\n";
+        nextCountdownHeader = "{red-fg}Counting down to the end of " + countdowns[nextEnd]["name"] + "\n";
+        nextCountdownFooter = "{/red-fg}\n"
+        nextCountdownFooter += "Start: " + (new Date(countdowns[nextEnd]["start"])).toTimeString() + "\n";
+        nextCountdownFooter += "End: " + (new Date(countdowns[nextEnd]["end"])).toTimeString() + "\n";
     }
     else {
-        remainingHeader = "{red-fg}Counting down to the end of " + countdowns[nextEnd]["name"] + "{/red-fg}\n";
-        remainingHeader += "Start: " + (new Date(countdowns[nextEnd]["start"])).toTimeString() + "\n";
-        remainingHeader += "End: " + (new Date(countdowns[nextEnd]["end"])).toTimeString() + "\n";
+        statsHeader = "{red-fg}Counting down to the end of " + countdowns[nextEnd]["name"] + "{/red-fg}\n";
+        statsHeader += "Start: " + (new Date(countdowns[nextEnd]["start"])).toTimeString() + "\n";
+        statsHeader += "End: " + (new Date(countdowns[nextEnd]["end"])).toTimeString() + "\n";
 
         if (nextStart != -1) {
-            remainingNextHeader = "\n";
-            remainingNextHeader += "Next countdown:\n";
-            remainingNextHeader += "{blue-fg}Counting down to the start of " + countdowns[nextStart]["name"] + "\n";
-            remainingNextFooter = "{/blue-fg}\n\n";
-            remainingNextFooter += "Start: " + (new Date(countdowns[nextStart]["start"])).toTimeString() + "\n";
-            remainingNextFooter += "End: " + (new Date(countdowns[nextStart]["end"])).toTimeString() + "\n";
+            nextCountdownHeader = "{blue-fg}Counting down to the start of " + countdowns[nextStart]["name"] + "\n";
+            nextCountdownFooter = "{/blue-fg}\n";
+            nextCountdownFooter += "Start: " + (new Date(countdowns[nextStart]["start"])).toTimeString() + "\n";
+            nextCountdownFooter += "End: " + (new Date(countdowns[nextStart]["end"])).toTimeString() + "\n";
         }
     }
-    remainingHeader += "\n";
-    remainingNextHeader += "\n";
 }
 
-updateRemaining();
+updateStats();
 
 // Clock and countdown update every 1 ms
 setInterval(function() {
     setClock();
     if (nextEnd != -1) {
         countdownClock.setDisplay(currentCountdown.toString());
+        stats.setContent(statsHeader + currentCountdown.stats());
         if (nextStart != -1) {
-            remaining.setContent(remainingHeader + currentCountdown.stats() +
-                remainingNextHeader + nextCountdown.toString() + remainingNextFooter +
-                nextCountdown.stats());
+            nextCountdownStats.setContent(nextCountdownHeader + nextCountdown.toString() +
+                nextCountdownFooter + nextCountdown.stats());
         }
         else {
-            remaining.setContent(remainingHeader + currentCountdown.stats());
+            stats.setContent(statsHeader + currentCountdown.stats());
         }
 
-
         if (currentCountdown.remaining() <= 0) {
-            setNextCountdown();
+            setCountdown();
             updateCountdown();
             updateRemaining();
         }
