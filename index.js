@@ -163,18 +163,20 @@ function updateStats() {
         stats.setContent("All countdowns have passed");
         nextCountdownStats.setContent("All countdowns have passed");
     }
-    else if (nextStart == -1) {
-        nextCountdownStats.setContent("No next countdown");
-    }
     else if (nextStart == nextEnd) {
         statsHeader = "{blue-fg}Counting down to the start of " + countdowns[nextStart]["name"] + "{/blue-fg}\n";
         statsHeader += "Start: " + (new Date(countdowns[nextStart]["start"])).toTimeString() + "\n";
         statsHeader += "End: " + (new Date(countdowns[nextStart]["end"])).toTimeString() + "\n";
 
-        nextCountdownHeader = "{red-fg}Counting down to the end of " + countdowns[nextEnd]["name"] + "\n";
-        nextCountdownFooter = "{/red-fg}\n"
-        nextCountdownFooter += "Start: " + (new Date(countdowns[nextEnd]["start"])).toTimeString() + "\n";
-        nextCountdownFooter += "End: " + (new Date(countdowns[nextEnd]["end"])).toTimeString() + "\n";
+        if (nextStart == -1) {
+            nextCountdownStats.setContent("No next countdown");
+        }
+        else {
+            nextCountdownHeader = "{red-fg}Counting down to the end of " + countdowns[nextEnd]["name"] + "\n";
+            nextCountdownFooter = "{/red-fg}\n"
+            nextCountdownFooter += "Start: " + (new Date(countdowns[nextEnd]["start"])).toTimeString() + "\n";
+            nextCountdownFooter += "End: " + (new Date(countdowns[nextEnd]["end"])).toTimeString() + "\n";
+        }
     }
     else {
         statsHeader = "{red-fg}Counting down to the end of " + countdowns[nextEnd]["name"] + "{/red-fg}\n";
