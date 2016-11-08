@@ -52,7 +52,9 @@ config.forEach(function(countdown) {
             countdowns.push({
                 "name": countdown["name"],
                 "start": Date.parse(today.toDateString() + " " + countdown["start"]),
-                "end": Date.parse(today.toDateString() + " " + countdown["end"])
+                "end": Date.parse(today.toDateString() + " " + countdown["end"]),
+                "startCountdown": new Countdown(Date.parse(today.toDateString() + " " + countdown["start"])),
+                "endCountdown": new Countdown(Date.parse(today.toDateString() + " " + countdown["end"]))
             });
         }
     });
@@ -123,18 +125,23 @@ function setClock() {
 }
 
 var currentCountdown;
+var nextCountdown;
 
 function updateCountdown() {
-    if (nextStart == -1 && nextEnd == -1) {
+    if (nextEnd == -1) {
         countdownClock.setDisplay("---.--.--.---");
         countdownClock.setOptions({color: 'white'});
     }
     else if (nextStart == nextEnd) {
-        currentCountdown = new Countdown(countdowns[nextStart]["start"]);
+        currentCountdown = countdowns[nextStart]["startCountdown"];
+        nextCountdown = countdowns[nextEnd]["endCountdown"];
         countdownClock.setOptions({color: 'blue'});
     }
     else {
-        currentCountdown = new Countdown(countdowns[nextEnd]["end"]);
+        currentCountdown = countdowns[nextEnd]["endCountdown"];
+        if (nextStart != -1) {
+            nextCountdown = countdowns[nextStart]["startCountdown"];
+        }
         countdownClock.setOptions({color: 'red'});
     }
 }
@@ -142,6 +149,8 @@ function updateCountdown() {
 updateCountdown();
 
 var remainingHeader;
+var remainingNextHeader;
+var remainingNextFooter;
 
 function updateRemaining() {
     if (nextStart == -1 && nextEnd == -1) {
@@ -151,13 +160,30 @@ function updateRemaining() {
         remainingHeader = "{blue-fg}Counting down to the start of " + countdowns[nextStart]["name"] + "{/blue-fg}\n";
         remainingHeader += "Start: " + (new Date(countdowns[nextStart]["start"])).toTimeString() + "\n";
         remainingHeader += "End: " + (new Date(countdowns[nextStart]["end"])).toTimeString() + "\n";
+
+        remainingNextHeader = "\n";
+        remainingNextHeader += "Next countdown:\n";
+        remainingNextHeader += "{red-fg}Counting down to the end of " + countdowns[nextEnd]["name"] + "\n";
+        remainingNextFooter = "{/red-fg}\n\n"
+        remainingNextFooter += "Start: " + (new Date(countdowns[nextEnd]["start"])).toTimeString() + "\n";
+        remainingNextFooter += "End: " + (new Date(countdowns[nextEnd]["end"])).toTimeString() + "\n";
     }
     else {
         remainingHeader = "{red-fg}Counting down to the end of " + countdowns[nextEnd]["name"] + "{/red-fg}\n";
         remainingHeader += "Start: " + (new Date(countdowns[nextEnd]["start"])).toTimeString() + "\n";
         remainingHeader += "End: " + (new Date(countdowns[nextEnd]["end"])).toTimeString() + "\n";
+
+        if (nextStart != -1) {
+            remainingNextHeader = "\n";
+            remainingNextHeader += "Next countdown:\n";
+            remainingNextHeader += "{blue-fg}Counting down to the start of " + countdowns[nextStart]["name"] + "\n";
+            remainingNextFooter = "{/blue-fg}\n\n";
+            remainingNextFooter += "Start: " + (new Date(countdowns[nextStart]["start"])).toTimeString() + "\n";
+            remainingNextFooter += "End: " + (new Date(countdowns[nextStart]["end"])).toTimeString() + "\n";
+        }
     }
     remainingHeader += "\n";
+    remainingNextHeader += "\n";
 }
 
 updateRemaining();
@@ -165,9 +191,17 @@ updateRemaining();
 // Clock and countdown update every 1 ms
 setInterval(function() {
     setClock();
-    if (nextStart != -1 && nextEnd != -1) {
+    if (nextEnd != -1) {
         countdownClock.setDisplay(currentCountdown.toString());
-        remaining.setContent(remainingHeader + currentCountdown.stats());
+        if (nextStart != -1) {
+            remaining.setContent(remainingHeader + currentCountdown.stats() +
+                remainingNextHeader + nextCountdown.toString() + remainingNextFooter +
+                nextCountdown.stats());
+        }
+        else {
+            remaining.setContent(remainingHeader + currentCountdown.stats());
+        }
+
 
         if (currentCountdown.remaining() <= 0) {
             setNextCountdown();
