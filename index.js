@@ -44,6 +44,12 @@ var nextCountdownStats = grid.set(7, 0, 3, 4, blessed.box,
         tags: true
     });
 
+var table = grid.set(4, 4, 6, 4, blessed.box,
+    {
+        label: 'Countdowns',
+        tags: true
+    });
+
 screen.render();
 
 // Parse config file and setup countdowns
@@ -194,18 +200,73 @@ function updateStats() {
 
 updateStats();
 
+function updateTable() {
+    var output = "";
+    Object.keys(countdowns).forEach(function(countdown) {
+        if (countdown >= nextStart) {
+            output += "{blue-fg}";
+        }
+
+        output += "Start of " + countdowns[countdown]["name"];
+        output += "{|}";
+        if (nextStart == countdown) {
+            if (nextStart == nextEnd) {
+                output += "(current countdown)";
+            }
+            else {
+                output += "(next countdown)";
+            }
+        }
+        else {
+            output += countdowns[countdown]["startCountdown"].toString();
+        }
+
+        if (countdown >= nextStart) {
+            output += "{/blue-fg}";
+        }
+        output += "\n";
+        output += "\n";
+
+        if (countdown >= nextEnd) {
+            output += "{red-fg}";
+        }
+
+        output += "End of " + countdowns[countdown]["name"];
+        output += "{|}";
+        if (nextEnd == countdown) {
+            if (nextStart == nextEnd) {
+                output += "(next countdown)";
+            }
+            else {
+                output += "(current countdown)";
+            }
+        }
+        else {
+            output += countdowns[countdown]["endCountdown"].toString();
+        }
+
+        if (countdown <= nextStart) {
+            output += "{/red-fg}";
+        }
+        output += "\n";
+        output += "\n";
+    });
+    table.setContent(output);
+}
+
+updateTable();
+
+
 // Clock and countdown update every 1 ms
 setInterval(function() {
     setClock();
+    updateTable();
     if (nextEnd != -1) {
         countdownClock.setDisplay(currentCountdown.toString());
         stats.setContent(statsHeader + currentCountdown.stats());
         if (nextStart != -1) {
             nextCountdownStats.setContent(nextCountdownHeader + nextCountdown.toString() +
                 nextCountdownFooter + nextCountdown.stats());
-        }
-        else {
-            stats.setContent(statsHeader + currentCountdown.stats());
         }
 
         if (currentCountdown.remaining() <= 0) {
@@ -227,9 +288,6 @@ setInterval(function() {
         curProgress.setPercent(parseFloat(progress).toFixed(2));
     }
 }, 500)
-
-// Temp placeholders
-grid.set(4, 4, 6, 8, blessed.box, {label: 'Other Countdowns'});
 
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {
     return process.exit(0);
