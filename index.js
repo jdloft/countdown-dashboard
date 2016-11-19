@@ -1,6 +1,7 @@
 var blessed = require('../blessed-contrib/node_modules/blessed');
 var contrib = require('../blessed-contrib/index.js');
 var fs = require('fs');
+var colors = require('colors/safe');
 
 var Countdown = require('./countdown.js');
 
@@ -44,10 +45,14 @@ var nextCountdownStats = grid.set(7, 0, 3, 4, blessed.box,
         tags: true
     });
 
-var table = grid.set(4, 4, 6, 4, blessed.box,
+var table = grid.set(4, 4, 6, 8, contrib.table,
     {
         label: 'Countdowns',
-        tags: true
+        keys: true,
+        fg: 'white',
+        interactive: false,
+        columnSpacing: 10,
+        columnWidth: [25, 20, 12, 7, 7, 7]
     });
 
 screen.render();
@@ -201,57 +206,54 @@ function updateStats() {
 updateStats();
 
 function updateTable() {
-    var output = "";
+    var output = [];
+    var row = [];
     Object.keys(countdowns).forEach(function(countdown) {
-        if (countdown >= nextStart) {
-            output += "{blue-fg}";
-        }
-
-        output += "Start of " + countdowns[countdown]["name"];
-        output += "{|}";
+        row.push(colors.blue("Start of " + countdowns[countdown]["name"]));
         if (nextStart == countdown) {
             if (nextStart == nextEnd) {
-                output += "(current countdown)";
+                row.push(colors.blue("(current countdown)"));
             }
             else {
-                output += "(next countdown)";
+                row.push(colors.blue("(next countdown)"));
             }
         }
         else {
-            output += countdowns[countdown]["startCountdown"].toString();
+            row.push(colors.blue(countdowns[countdown]["startCountdown"].toString()));
+            row.push(colors.blue(countdowns[countdown]["startCountdown"].remaining()));
+            row.push(colors.blue(countdowns[countdown]["startCountdown"].remainingSeconds()));
+            row.push(colors.blue(countdowns[countdown]["startCountdown"].remainingMinutes()));
+            row.push(colors.blue(countdowns[countdown]["startCountdown"].remainingHours()));
         }
 
-        if (countdown >= nextStart) {
-            output += "{/blue-fg}";
-        }
-        output += "\n";
-        output += "\n";
+        output.push(row);
+        row = [];
 
-        if (countdown >= nextEnd) {
-            output += "{red-fg}";
-        }
-
-        output += "End of " + countdowns[countdown]["name"];
-        output += "{|}";
+        row.push(colors.red("End of " + countdowns[countdown]["name"]));
         if (nextEnd == countdown) {
             if (nextStart == nextEnd) {
-                output += "(next countdown)";
+                row.push(colors.red("(next countdown)"));
             }
             else {
-                output += "(current countdown)";
+                row.push(colors.red("(current countdown)"));
             }
         }
         else {
-            output += countdowns[countdown]["endCountdown"].toString();
+            row.push(colors.red(countdowns[countdown]["endCountdown"].toString()));
+            row.push(colors.red(countdowns[countdown]["endCountdown"].remaining()));
+            row.push(colors.red(countdowns[countdown]["endCountdown"].remainingSeconds()));
+            row.push(colors.red(countdowns[countdown]["endCountdown"].remainingMinutes()));
+            row.push(colors.red(countdowns[countdown]["endCountdown"].remainingHours()));
         }
 
-        if (countdown <= nextStart) {
-            output += "{/red-fg}";
-        }
-        output += "\n";
-        output += "\n";
+        output.push(row);
+        row = [];
     });
-    table.setContent(output);
+
+    table.setData({
+        headers: ['Label', 'Countdown', 'Milliseconds', 'Seconds', 'Minutes', 'Hours'],
+        data: output
+    });
 }
 
 updateTable();
