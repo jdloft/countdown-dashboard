@@ -31,7 +31,7 @@ Countdown.prototype.toString = function() {
     var secondsRem = parseInt((this.delta % this.minutes) / this.seconds);
     var millisecondsRem = parseInt(this.delta % this.seconds);
     if (past) {
-        return Math.abs(hoursRem).pad() + ":" + Math.abs(minutesRem).pad() + ":" +
+        return "+" + Math.abs(hoursRem).pad() + ":" + Math.abs(minutesRem).pad() + ":" +
             Math.abs(secondsRem).pad() + ":" + Math.abs(millisecondsRem).pad(3);
     }
     else {
