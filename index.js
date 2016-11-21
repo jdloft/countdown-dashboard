@@ -51,7 +51,7 @@ var table = grid.set(4, 4, 6, 8, contrib.table,
         keys: true,
         fg: 'white',
         interactive: false,
-        columnSpacing: 10,
+        columnSpacing: 5,
         columnWidth: [25, 20, 12, 7, 7, 7]
     });
 
